@@ -12,6 +12,15 @@ async function getUser(name) {
   return profile;
 }
 
+async function getRepos(profile) {
+  const response = await fetch(
+    `${profile.repos_url}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&per_page=10`
+  );
+  const repo = await response.json();
+
+  return repo;
+}
+
 document.querySelector("#search").addEventListener("submit", async (e) => {
   e.preventDefault();
   const username = document.querySelector("#findByUsername").value;
@@ -19,10 +28,33 @@ document.querySelector("#search").addEventListener("submit", async (e) => {
   console.log(username);
 
   const profile = await getUser(username);
+  const repos = await getRepos(profile);
 
   showProfile(profile);
+  showRepos(repos);
+  
   console.log(profile);
+  console.log(repos);
 });
+
+function showRepos(repos) {
+    let newHtml = '';
+    for(let repo of repos) {
+        newHtml += `
+        <div class="repo">
+            <div class="repo_name">
+            <a href="${repo.html_url}">${repo.name}</a>
+            </div>
+            <p>
+            <span class="circle"></span> ${repo.language}
+            <ion-icon name="star-outline"></ion-icon> ${repo.watchers}
+            <ion-icon name="git-branch-outline"></ion-icon> ${repo.forks_count}
+            </p>
+        </div>
+        `
+    }
+    document.querySelector('.repos').innerHTML = newHtml;
+}
 
 function showProfile(profile) {
   document.querySelector(".profile").innerHTML = `
